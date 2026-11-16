@@ -4,7 +4,6 @@ import { Crosshair, History, LocateFixed, WifiOff } from 'lucide-react';
 import type {
   GuideRouteState,
   GuideTarget,
-  MapStyle,
   RunRecord,
   SplitRecord,
   TrackPoint,
@@ -27,8 +26,6 @@ interface LiveMapProps {
   pastRuns?: RunRecord[];
   currentLegIndex?: number;
   currentLocation: TrackPoint | null;
-  mapStyle: MapStyle;
-  onChangeMapStyle: (style: MapStyle) => void;
   autoCenter: boolean;
   onToggleAutoCenter: (next: boolean) => void;
   isOnline: boolean;
@@ -46,8 +43,6 @@ export const LiveMap: React.FC<LiveMapProps> = ({
   pastRuns = [],
   currentLegIndex = 0,
   currentLocation,
-  mapStyle,
-  onChangeMapStyle,
   autoCenter,
   onToggleAutoCenter,
   isOnline,
@@ -161,7 +156,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update tile layer & offline fallback grid when mapStyle or online status changes
+  // Update OSM tile layer & offline fallback grid when online status changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -175,7 +170,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
       offlineGridRef.current = null;
     }
 
-    const cfg = getFreeTileConfig(mapStyle);
+    const cfg = getFreeTileConfig('standard');
     const gridLayer = createOfflineGridLayer(cfg.isDark);
     gridLayer.addTo(map);
     offlineGridRef.current = gridLayer;
@@ -205,7 +200,7 @@ export const LiveMap: React.FC<LiveMapProps> = ({
 
     tileLayer.addTo(map);
     tileLayerRef.current = tileLayer;
-  }, [mapStyle, isOnline]);
+  }, [isOnline]);
 
   // Render past saved runs with distinct automatic colors when enabled
   useEffect(() => {
@@ -744,38 +739,15 @@ export const LiveMap: React.FC<LiveMapProps> = ({
     <div className="relative w-full h-full overflow-hidden bg-slate-200">
       <div ref={containerRef} className="w-full h-full z-0" />
 
-      {/* Top-Left Free Map Layer Switcher & Offline Status */}
-      <div className="absolute top-3 left-3 z-[400] flex flex-col items-start gap-2">
-        <div className="inline-flex items-center gap-1 rounded-xl bg-white/95 backdrop-blur-md p-1 border border-slate-200/80 shadow-md">
-          {(
-            [
-              { id: 'standard', label: 'OSM Street' },
-              { id: 'topo', label: 'Topo Terrain' },
-              { id: 'dark', label: 'Dark' },
-            ] as { id: MapStyle; label: string }[]
-          ).map((layer) => (
-            <button
-              key={layer.id}
-              type="button"
-              onClick={() => onChangeMapStyle(layer.id)}
-              className={`min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors whitespace-nowrap ${
-                mapStyle === layer.id
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              {layer.label}
-            </button>
-          ))}
-        </div>
-
-        {(!isOnline || tileOfflineFallback) && (
+      {/* Top-Left Offline Status */}
+      {(!isOnline || tileOfflineFallback) && (
+        <div className="absolute top-3 left-3 z-[400]">
           <div className="flex items-center gap-2 rounded-xl bg-slate-900/90 backdrop-blur-md px-3 py-2 text-xs font-medium text-white shadow-md">
             <WifiOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>Offline Grid · Route Tracking Active</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Map Floating Controls (Top Right) */}
       <div className="absolute top-3 right-3 z-[400] flex flex-col gap-2">

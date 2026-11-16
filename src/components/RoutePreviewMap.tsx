@@ -42,7 +42,7 @@ export const RoutePreviewMap: React.FC<RoutePreviewMapProps> = ({
       attributionControl: true,
     });
 
-    const cfg = getFreeTileConfig(mapStyle);
+    const cfg = getFreeTileConfig('standard');
     createOfflineGridLayer(cfg.isDark).addTo(map);
     L.tileLayer(cfg.url, {
       attribution: cfg.attribution,

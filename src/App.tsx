@@ -19,12 +19,12 @@ import { LiveMap } from './components/LiveMap';
 import { RunHistoryView } from './components/RunHistoryView';
 import { RunSummaryModal } from './components/RunSummaryModal';
 import { SettingsView } from './components/SettingsView';
+import { SpeedPulseStrip } from './components/SpeedPulseStrip';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { useRunTracker } from './hooks/useRunTracker';
 import type {
   GuideRouteState,
   GuideTarget,
-  MapStyle,
   RunRecord,
   UserSettings,
 } from './types/run';
@@ -81,13 +81,6 @@ export default function App() {
     setSettings(next);
     saveSettings(next);
   }, []);
-
-  const handleChangeMapStyle = useCallback(
-    (mapStyle: MapStyle) => {
-      handleUpdateSettings({ ...settings, mapStyle });
-    },
-    [settings, handleUpdateSettings]
-  );
 
   const handleToggleAutoCenter = useCallback(
     (autoCenter: boolean) => {
@@ -347,24 +340,33 @@ export default function App() {
       <main className="flex-1 flex flex-col">
         {activeTab === 'track' && (
           <div className="mx-auto w-full max-w-7xl flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pb-20 lg:pb-6 items-stretch">
-            {/* Live Interactive Map */}
-            <div className="lg:col-span-7 h-[39vh] min-h-[260px] lg:h-[calc(100vh-124px)] lg:min-h-[540px] rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-              <LiveMap
-                points={tracker.draft?.points ?? []}
-                splits={tracker.draft?.splits ?? []}
-                pastRuns={runs}
-                currentLegIndex={tracker.draft?.currentLegIndex ?? 0}
-                currentLocation={tracker.currentLocation}
-                mapStyle={settings.mapStyle}
-                onChangeMapStyle={handleChangeMapStyle}
-                autoCenter={settings.autoCenter}
-                onToggleAutoCenter={handleToggleAutoCenter}
-                isOnline={isOnline}
-                isRunning={isRunning}
-                guideRoute={guideRoute}
-                guideGuidance={guideGuidance}
-                onSelectGuideTarget={handleSelectGuideTarget}
-              />
+            {/* Live Interactive Map + Full-Width Slim Speed Pulse Bar */}
+            <div className="lg:col-span-7 flex flex-col gap-3 lg:h-[calc(100vh-124px)] lg:min-h-[540px]">
+              <div className="flex-1 h-[36vh] min-h-[240px] lg:h-auto rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                <LiveMap
+                  points={tracker.draft?.points ?? []}
+                  splits={tracker.draft?.splits ?? []}
+                  pastRuns={runs}
+                  currentLegIndex={tracker.draft?.currentLegIndex ?? 0}
+                  currentLocation={tracker.currentLocation}
+                  autoCenter={settings.autoCenter}
+                  onToggleAutoCenter={handleToggleAutoCenter}
+                  isOnline={isOnline}
+                  isRunning={isRunning}
+                  guideRoute={guideRoute}
+                  guideGuidance={guideGuidance}
+                  onSelectGuideTarget={handleSelectGuideTarget}
+                />
+              </div>
+
+              <div className="shrink-0 w-full">
+                <SpeedPulseStrip
+                  liveSpeedKmh={tracker.liveSpeedKmh}
+                  maxSpeedKmh={tracker.draft?.maxSpeedKmh ?? 0}
+                  unit={settings.unit}
+                  isRunning={isRunning}
+                />
+              </div>
             </div>
 
             {/* Telemetry & Run Controls */}

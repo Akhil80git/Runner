@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HardDrive, Trash2 } from 'lucide-react';
-import type { MapStyle, UserSettings } from '../types/run';
+import type { UserSettings } from '../types/run';
 import { getLocalStorageStats } from '../utils/storage';
 import { PWAInstallButton } from './PWAInstallButton';
 
@@ -135,37 +135,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* Map & Audio */}
       <section className="rounded-2xl bg-white border border-slate-200 divide-y divide-slate-100">
-        <div className="p-5 space-y-3">
+        <div className="p-5 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-slate-900">
-              Free Open-Source Map Style
+              Map Source: OpenStreetMap
             </p>
             <p className="text-xs text-slate-500">
-              Visited tiles are cached automatically for offline viewing.
+              Free street map tiles cached automatically for offline runs.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {(
-              [
-                { id: 'standard', label: 'OpenStreetMap' },
-                { id: 'topo', label: 'Topo Terrain' },
-                { id: 'dark', label: 'Night Dark' },
-              ] as { id: MapStyle; label: string }[]
-            ).map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => update('mapStyle', opt.id)}
-                className={`min-h-[44px] rounded-xl border px-3 py-2 text-xs font-semibold transition-colors whitespace-nowrap ${
-                  settings.mapStyle === opt.id
-                    ? 'border-orange-600 bg-orange-50 text-orange-900'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+          <span className="font-mono text-xs font-semibold text-emerald-700">
+            OSM Standard
+          </span>
         </div>
 
         <div className="p-5 flex items-center justify-between gap-4">
