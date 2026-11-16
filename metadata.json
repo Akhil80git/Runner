@@ -1,0 +1,6 @@
+{
+  "name": "PaceTrail",
+  "description": "Free, offline-ready GPS running tracker with live map routes, speed, pace, splits, and local storage history.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
