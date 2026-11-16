@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import type { MapStyle, SplitRecord, TrackPoint } from '../types/run';
+import { buildColoredLegSegments, getLegColor } from '../utils/geo';
 import {
   createOfflineGridLayer,
   getFreeTileConfig,
@@ -52,41 +53,89 @@ export const RoutePreviewMap: React.FC<RoutePreviewMapProps> = ({
     }).addTo(map);
 
     if (points.length > 0) {
-      const latLngs: L.LatLngExpression[] = points.map((p) => [p.lat, p.lng]);
+      const segments = buildColoredLegSegments(points);
+      const boundsPoints: L.LatLngExpression[] = points.map((p) => [p.lat, p.lng]);
 
-      L.polyline(latLngs, {
-        color: '#FFFFFF',
-        weight: 8,
-        opacity: 0.9,
-        lineCap: 'round',
-        lineJoin: 'round',
+      segments.forEach((seg) => {
+        if (seg.isPauseGap) return;
+        L.polyline(seg.latLngs, {
+          color: '#FFFFFF',
+          weight: 8,
+          opacity: 0.9,
+          lineCap: 'round',
+          lineJoin: 'round',
+          smoothFactor: 1.5,
+        }).addTo(map);
+      });
+
+      segments.forEach((seg) => {
+        if (!seg.isPauseGap) return;
+        L.polyline(seg.latLngs, {
+          color: '#475569',
+          weight: 3.5,
+          opacity: 0.85,
+          dashArray: '1 9',
+          lineCap: 'round',
+        }).addTo(map);
+
+        const [pausePt, resumePt] = seg.latLngs;
+        if (pausePt) {
+          L.circleMarker(pausePt, {
+            radius: 4,
+            fillColor: '#475569',
+            color: '#FFFFFF',
+            weight: 2,
+            fillOpacity: 1,
+          }).addTo(map);
+        }
+        if (resumePt) {
+          L.circleMarker(resumePt, {
+            radius: 4,
+            fillColor: getLegColor(seg.legIndex),
+            color: '#FFFFFF',
+            weight: 2,
+            fillOpacity: 1,
+          }).addTo(map);
+        }
+      });
+
+      segments.forEach((seg) => {
+        if (seg.isPauseGap) return;
+        L.polyline(seg.latLngs, {
+          color: seg.color,
+          weight: 4.5,
+          opacity: 1,
+          lineCap: 'round',
+          lineJoin: 'round',
+          smoothFactor: 1.5,
+        }).addTo(map);
+      });
+
+      const boundsLine = L.polyline(boundsPoints, { opacity: 0 });
+
+      // Point A (Start) marker
+      const pointAIcon = L.divIcon({
+        className: 'pacetrail-endpoint-a',
+        html: `<div style="width:24px;height:24px;border-radius:9999px;background:#059669;color:#FFFFFF;border:2.5px solid #FFFFFF;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,0.35);font-family:Inter,sans-serif;">A</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      L.marker([points[0].lat, points[0].lng], {
+        icon: pointAIcon,
+        interactive: false,
       }).addTo(map);
 
-      const routeLine = L.polyline(latLngs, {
-        color: '#EA580C',
-        weight: 4.5,
-        opacity: 1,
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(map);
-
-      // Start marker
-      L.circleMarker([points[0].lat, points[0].lng], {
-        radius: 6.5,
-        fillColor: '#059669',
-        color: '#FFFFFF',
-        weight: 2.5,
-        fillOpacity: 1,
-      }).addTo(map);
-
-      // End marker
+      // Point B (End) marker
       const last = points[points.length - 1];
-      L.circleMarker([last.lat, last.lng], {
-        radius: 6.5,
-        fillColor: '#0F172A',
-        color: '#FFFFFF',
-        weight: 2.5,
-        fillOpacity: 1,
+      const pointBIcon = L.divIcon({
+        className: 'pacetrail-endpoint-b',
+        html: `<div style="width:24px;height:24px;border-radius:9999px;background:#0F172A;color:#FFFFFF;border:2.5px solid #FFFFFF;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,0.35);font-family:Inter,sans-serif;">B</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      L.marker([last.lat, last.lng], {
+        icon: pointBIcon,
+        interactive: false,
       }).addTo(map);
 
       // Split pins
@@ -112,7 +161,7 @@ export const RoutePreviewMap: React.FC<RoutePreviewMapProps> = ({
       }
 
       if (points.length > 1) {
-        map.fitBounds(routeLine.getBounds(), { padding: [28, 28] });
+        map.fitBounds(boundsLine.getBounds(), { padding: [28, 28] });
       }
     }
 

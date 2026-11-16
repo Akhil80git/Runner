@@ -3,6 +3,7 @@ import {
   Download,
   FileDown,
   MapPin,
+  Navigation,
   Pencil,
   Trash2,
   Upload,
@@ -25,6 +26,7 @@ interface RunHistoryViewProps {
   onDeleteRun: (id: string) => void;
   onImportJSON: (jsonText: string) => void;
   onStartNewRun: () => void;
+  onTrackRoute: (run: RunRecord) => void;
 }
 
 export const RunHistoryView: React.FC<RunHistoryViewProps> = ({
@@ -34,6 +36,7 @@ export const RunHistoryView: React.FC<RunHistoryViewProps> = ({
   onDeleteRun,
   onImportJSON,
   onStartNewRun,
+  onTrackRoute,
 }) => {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(
     runs[0]?.id ?? null
@@ -356,6 +359,11 @@ export const RunHistoryView: React.FC<RunHistoryViewProps> = ({
                         </>
                       )}
                     </p>
+                    {run.notes && run.notes.trim().length > 0 && (
+                      <p className="mt-1 text-xs text-slate-600 line-clamp-2 break-words">
+                        {run.notes}
+                      </p>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
                     <p className="font-mono text-sm font-bold text-slate-900">
@@ -427,7 +435,18 @@ export const RunHistoryView: React.FC<RunHistoryViewProps> = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      {selectedRun.points.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => onTrackRoute(selectedRun)}
+                          className="min-h-[44px] inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-orange-700 active:scale-[0.98] transition-all whitespace-nowrap"
+                          title="Follow this route in real time to Point A or B"
+                        >
+                          <Navigation className="w-3.5 h-3.5 shrink-0" />
+                          <span>Track Route</span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => startEditing(selectedRun)}

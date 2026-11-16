@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   soundCues: true,
   mapStyle: 'standard',
   autoCenter: true,
+  autoColorVisited: true,
 };
 
 export function loadSettings(): UserSettings {
@@ -42,6 +43,10 @@ export function loadSettings(): UserSettings {
         typeof parsed.autoCenter === 'boolean'
           ? parsed.autoCenter
           : DEFAULT_SETTINGS.autoCenter,
+      autoColorVisited:
+        typeof parsed.autoColorVisited === 'boolean'
+          ? parsed.autoColorVisited
+          : DEFAULT_SETTINGS.autoColorVisited,
     };
   } catch {
     return DEFAULT_SETTINGS;

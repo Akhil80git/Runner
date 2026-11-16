@@ -10,6 +10,8 @@ export interface TrackPoint {
   accuracy: number | null;
   altitude: number | null;
   heading?: number | null;
+  legIndex?: number;
+  isPauseGapStart?: boolean;
 }
 
 export interface SplitRecord {
@@ -38,6 +40,14 @@ export interface RunRecord {
   source: RunSource;
 }
 
+export type LegSwitchReason =
+  | 'start'
+  | 'revisited'
+  | 'new_path'
+  | 'turn_back'
+  | 'resumed'
+  | 'manual';
+
 export interface ActiveRunDraft {
   id: string;
   status: 'running' | 'paused';
@@ -50,6 +60,13 @@ export interface ActiveRunDraft {
   maxSpeedKmh: number;
   elevationGainM: number;
   source: RunSource;
+  currentLegIndex?: number;
+  legPointStartIdx?: number;
+  legStartDistMeters?: number;
+  wasOnVisitedPath?: boolean;
+  visitedTransitionStreak?: number;
+  lastLegReason?: LegSwitchReason;
+  pendingPauseGap?: boolean;
 }
 
 export interface UserSettings {
@@ -59,4 +76,12 @@ export interface UserSettings {
   soundCues: boolean;
   mapStyle: MapStyle;
   autoCenter: boolean;
+  autoColorVisited: boolean;
+}
+
+export type GuideTarget = 'A' | 'B';
+
+export interface GuideRouteState {
+  run: RunRecord;
+  target: GuideTarget | null;
 }

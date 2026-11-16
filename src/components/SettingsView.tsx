@@ -219,6 +219,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             />
           </button>
         </div>
+
+        <div className="p-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">
+              Auto-Color Revisited Roads
+            </p>
+            <p className="text-xs text-slate-500">
+              Automatically switch route line color live when crossing onto or
+              leaving an already-covered path.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.autoColorVisited}
+            onClick={() =>
+              update('autoColorVisited', !settings.autoColorVisited)
+            }
+            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
+              settings.autoColorVisited ? 'bg-orange-600' : 'bg-slate-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                settings.autoColorVisited ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </section>
 
       {/* Local Storage Info */}
